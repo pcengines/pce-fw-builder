@@ -1,6 +1,9 @@
 pce-fw-builder
 ==============
 
+**NOTE**: this is work in progress respository and things does not work as
+expected yet.
+
 This project aims to provide infrastructure for reliable building firmware for
 PC Engines platforms. It replace legacy approach from [release_manifests](https://github.com/pcengines/release_manifests)
 and utilize official [coreboot-sdk](https://hub.docker.com/r/coreboot/coreboot-sdk/).
