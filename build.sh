@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 if [ $# -lt 3 ]; then
     echo "Usage: ./build.sh dev-build <path> <platform> [<menuconfig-param>]"
@@ -20,8 +20,10 @@ if [ "$1" == "dev-build" ];then
 
     # remove coreboot path
     shift
-    docker run --rm -it -v $cb_path:/home/coreboot/coreboot -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+    docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+        -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
         /home/coreboot/scripts/pce-fw-builder.sh $*
+
 elif [ "$1" == "release" ]; then
     if [ -d release ]; then
         sudo rm -rf release
@@ -30,14 +32,19 @@ elif [ "$1" == "release" ]; then
     # remove release from options
     shift
     mkdir release
-    git clone https://github.com/pcengines/coreboot.git -b $2
+    git clone https://review.coreboot.org/coreboot.git release/coreboot
+    cd release/coreboot
+    git submodule update --init --checkout
+    git remote add pcengines https://github.com/pcengines/coreboot.git
+    git fetch pcengines
+    git checkout $1
+    git submodule update --init --checkout
+    cd ../..
 
     # remove tag|branch from options
     shift
-    cd coreboot
-    git submodule update --init --checkout
-    cd ..
-    docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+    docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+        -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
         /home/coreboot/scripts/pce-fw-builder.sh $*
 fi
 
