@@ -77,9 +77,13 @@ elif [ "$1" == "release-CI" ]; then
 
     scripts/pce-fw-builder.sh $*
 
+    pwd
+    ls -al /home/coreboot/coreboot/build/
     cp /home/coreboot/coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
+    md5sum /home/coreboot/coreboot/build/coreboot.rom
+    pwd
+    ls -al
     md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
     tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
-
 fi
 
