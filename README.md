@@ -19,7 +19,7 @@ cd pce-fw-builder
 ```
 
 * `<tag|branch>` - any valid branch or tag of [PC Engines coreboot repository](https://github.com/pcengines/coreboot)
-* `<platform>` - one of supported platforms `apu2`, `apu3`, `apu4` or `apu5`
+* `<platform>` - one of supported platforms `apu1`, `apu2`, `apu3`, `apu4` or `apu5`
 * `<path>` - full path to coreboot source
 
 TODO
