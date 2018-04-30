@@ -56,5 +56,32 @@ elif [ "$1" == "release" ]; then
     md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
     tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
 
+elif [ "$1" == "release-CI" ]; then
+
+    # remove release from options
+    shift
+    mkdir /home/coreboot/release
+    git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
+    cd /home/coreboot/coreboot
+    git submodule update --init --checkout
+    git remote add pcengines https://github.com/pcengines/coreboot.git
+    git fetch pcengines
+    git checkout $1
+    git submodule update --init --checkout
+    cd /home/coreboot/pce-fw-builder
+
+    VERSION=$1
+    OUT_FILE_NAME="$2_${VERSION}.rom"
+
+    # remove tag|branch from options
+    shift
+
+    scripts/pce-fw-builder.sh $*
+
+    cd /home/coreboot/release
+    cp /home/coreboot/coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
+    md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
+    tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
+
 fi
 
