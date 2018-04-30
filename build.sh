@@ -58,9 +58,8 @@ elif [ "$1" == "release" ]; then
 
 elif [ "$1" == "release-CI" ]; then
 
-    # remove release from options
+    # remove release-CI from options
     shift
-    mkdir /home/coreboot/release
     git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
     cd /home/coreboot/coreboot
     git submodule update --init --checkout
@@ -78,7 +77,6 @@ elif [ "$1" == "release-CI" ]; then
 
     scripts/pce-fw-builder.sh $*
 
-    cd /home/coreboot/release
     cp /home/coreboot/coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
     md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
     tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
