@@ -41,10 +41,20 @@ elif [ "$1" == "release" ]; then
     git submodule update --init --checkout
     cd ../..
 
+    VERSION=$1
+    OUT_FILE_NAME="$2_${VERSION}.rom"
+
     # remove tag|branch from options
     shift
     docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
         -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
         /home/coreboot/scripts/pce-fw-builder.sh $*
+
+
+    cd release
+    cp coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
+    md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
+    tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
+
 fi
 
