@@ -79,16 +79,9 @@ elif [ "$1" == "release-CI" ]; then
 
     pwd
     ls -al /home/coreboot/coreboot/build/
-    cp /home/coreboot/coreboot/build/coreboot.rom /home/coreboot/"${OUT_FILE_NAME}"
-    md5sum /home/coreboot/coreboot/build/coreboot.rom
-    cd /home/coreboot
-    pwd
-    ls -al
+    cp /home/coreboot/coreboot/build/coreboot.rom /home/coreboot/release/"${OUT_FILE_NAME}"
+    cd /home/coreboot/release
     md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
-    pwd
-    ls -al
     tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
-    pwd
-    ls -al
 fi
 
