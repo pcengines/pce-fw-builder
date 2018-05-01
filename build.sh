@@ -79,6 +79,11 @@ elif [ "$1" == "release-CI" ]; then
 
     pwd
     ls -al /home/coreboot/coreboot/build/
+
+    if [ ! -d /home/coreboot/release ]; then
+        mkdir -p /home/coreboot/release
+    fi
+
     cp /home/coreboot/coreboot/build/coreboot.rom /home/coreboot/release/"${OUT_FILE_NAME}"
     cd /home/coreboot/release
     md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
