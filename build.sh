@@ -88,5 +88,9 @@ elif [ "$1" == "release-CI" ]; then
     cd /home/coreboot/release
     md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
     tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
+    pwd
+    ls -al
+    cp "${OUT_FILE_NAME}.tar.gz" /home/coreboot
+    ls -al /home/coreboot
 fi
 
