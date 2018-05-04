@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 if [ $# -lt 3 ]; then
     echo "Usage: ./build.sh dev-build <path> <platform> [<menuconfig-param>]"
