@@ -41,10 +41,56 @@ elif [ "$1" == "release" ]; then
     git submodule update --init --checkout
     cd ../..
 
+    VERSION=$1
+    OUT_FILE_NAME="$2_${VERSION}.rom"
+
     # remove tag|branch from options
     shift
     docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
         -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
         /home/coreboot/scripts/pce-fw-builder.sh $*
+
+
+    cd release
+    cp coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
+    md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
+    tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
+
+elif [ "$1" == "release-CI" ]; then
+
+    # remove release-CI from options
+    shift
+    git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
+    cd /home/coreboot/coreboot
+    git submodule update --init --checkout
+    git remote add pcengines https://github.com/pcengines/coreboot.git
+    git fetch pcengines
+    git checkout $1
+    git submodule update --init --checkout
+    cd /home/coreboot/pce-fw-builder
+
+    VERSION=$1
+    OUT_FILE_NAME="$2_${VERSION}.rom"
+
+    # remove tag|branch from options
+    shift
+
+    scripts/pce-fw-builder.sh $*
+
+    pwd
+    ls -al /home/coreboot/coreboot/build/
+
+    if [ ! -d /home/coreboot/release ]; then
+        mkdir -p /home/coreboot/release
+    fi
+
+    cp /home/coreboot/coreboot/build/coreboot.rom /home/coreboot/release/"${OUT_FILE_NAME}"
+    cd /home/coreboot/release
+    md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
+    tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
+    pwd
+    ls -al
+    cp "${OUT_FILE_NAME}.tar.gz" /home/coreboot
+    ls -al /home/coreboot
 fi
 
