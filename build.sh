@@ -1,8 +1,7 @@
 #!/bin/bash -x
 
 check_if_legacy() {
-    tag=$(git describe --tags --abbrev=0)
-    case "$tag" in
+    case "$1" in
         4.[0-3]*)
             return 1
             ;;
@@ -20,7 +19,6 @@ check_if_legacy() {
             exit
             ;;
     esac
-
 }
 
 if [ $# -lt 3 ]; then
@@ -41,7 +39,7 @@ if [ "$1" == "dev-build" ];then
 
     cb_path=$1
     pushd $cb_path
-    check_if_legacy
+    check_if_legacy $(git describe --tags --abbrev=0)
     legacy=$?
     popd
 
@@ -77,8 +75,12 @@ elif [ "$1" == "release" ]; then
     git submodule update --init --checkout
     git remote add pcengines https://github.com/pcengines/coreboot.git
     git fetch pcengines
-    git checkout $1
+    git checkout -f $1
     git submodule update --init --checkout
+
+    check_if_legacy $(git describe --tags --abbrev=0 ${1})
+    legacy=$?
+
     cd ../..
 
     VERSION=$1
