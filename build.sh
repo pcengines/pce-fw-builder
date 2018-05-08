@@ -118,17 +118,18 @@ elif [ "$1" == "release-CI" ]; then
     git submodule update --init --checkout
     git remote add pcengines https://github.com/pcengines/coreboot.git
     git fetch pcengines
-    git checkout $1
+    git checkout -f $1
     git submodule update --init --checkout
     cd /home/coreboot/pce-fw-builder
-
+    check_if_legacy $(git describe --tags --abbrev=0 ${1})
+    legacy=$?
     VERSION=$1
     OUT_FILE_NAME="$2_${VERSION}.rom"
 
     # remove tag|branch from options
     shift
 
-    scripts/pce-fw-builder.sh $*
+    scripts/pce-fw-builder.sh $legacy $*
 
     pwd
     ls -al /home/coreboot/coreboot/build/
