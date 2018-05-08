@@ -48,12 +48,12 @@ if [ "$1" == "dev-build" ];then
 
 
     if [ "$legacy" == 1 ]; then
-        echo "Build coreboot legacy"
+        echo "Dev-build coreboot legacy"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
-        echo "Build coreboot mainline"
+        echo "Dev-build coreboot mainline"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
@@ -88,10 +88,21 @@ elif [ "$1" == "release" ]; then
 
     # remove tag|branch from options
     shift
-    docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
-        -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
-        /home/coreboot/scripts/pce-fw-builder.sh $*
 
+    if [ "$legacy" == 1 ]; then
+        echo "Release $1 build coreboot legacy"
+        docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [ "$legacy" == 0 ]; then
+        echo "Release $1 build coreboot mainline"
+        docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $*
+    else
+        echo "ERROR: Exit"
+        exit
+    fi
 
     cd release
     cp coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
