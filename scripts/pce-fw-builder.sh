@@ -1,8 +1,9 @@
 #!/bin/bash -x
 
-echo $*
-
 cd /home/coreboot/coreboot
+
+legacy=$1
+shift
 
 if [ $# == 1 ];then
     echo "Build coreboot for $1"

@@ -1,5 +1,28 @@
 #!/bin/bash -x
 
+check_if_legacy() {
+    tag=$(git describe --tags --abbrev=0)
+    case "$tag" in
+        4.[0-3]*)
+            return 1
+            ;;
+        4.[4-9]*)
+            return 0
+            ;;
+        v4.[0-3]*)
+            return 1
+            ;;
+        v4.[4-9]*)
+            return 0
+            ;;
+        *)
+            echo "ERROR: Tag not recognized $tag"
+            exit
+            ;;
+    esac
+
+}
+
 if [ $# -lt 3 ]; then
     echo "Usage: ./build.sh dev-build <path> <platform> [<menuconfig-param>]"
     echo "  ./build.sh release <tag|branch> <platform> [<menuconfig-param>]"
@@ -17,12 +40,29 @@ if [ "$1" == "dev-build" ];then
     shift
 
     cb_path=$1
+    pushd $cb_path
+    check_if_legacy
+    legacy=$?
+    popd
 
     # remove coreboot path
     shift
-    docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
-        -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
-        /home/coreboot/scripts/pce-fw-builder.sh $*
+
+
+    if [ "$legacy" == 1 ]; then
+        echo "Build coreboot legacy"
+        docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [ "$legacy" == 0 ]; then
+        echo "Build coreboot mainline"
+        docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    else
+        echo "ERROR: Exit"
+        exit
+    fi
 
 elif [ "$1" == "release" ]; then
     if [ -d release ]; then
