@@ -120,9 +120,11 @@ elif [ "$1" == "release-CI" ]; then
     git fetch pcengines
     git checkout -f $1
     git submodule update --init --checkout
-    cd /home/coreboot/pce-fw-builder
     check_if_legacy $(git describe --tags --abbrev=0 ${1})
     legacy=$?
+
+    cd /home/coreboot/pce-fw-builder
+
     VERSION=$1
     OUT_FILE_NAME="$2_${VERSION}.rom"
 
