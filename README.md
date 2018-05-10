@@ -22,8 +22,24 @@ cd pce-fw-builder
 * `<platform>` - one of supported platforms `apu1`, `apu2`, `apu3`, `apu4` or `apu5`
 * `<path>` - full path to coreboot source
 
-TODO
-----
+Building Docker image
+---------------------
 
-* support for `< v4.6.5`
-* support for building all binaries
+## Mainline
+
+```
+docker build -t 3mdeb/pce-fw-builder -f Dockerfile.ml .
+```
+
+## Legacy
+
+```
+docker build -t 3mdeb/pce-fw-builder-legacy -f Dockerfile.legacy .
+```
+
+Docker image usage
+------------------
+
+## Mainline
+
+## Legacy

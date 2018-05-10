@@ -1,5 +1,26 @@
 #!/bin/bash -x
 
+check_if_legacy() {
+    case "$1" in
+        4.[0-3]*)
+            return 1
+            ;;
+        4.[4-9]*)
+            return 0
+            ;;
+        v4.[0-3]*)
+            return 1
+            ;;
+        v4.[4-9]*)
+            return 0
+            ;;
+        *)
+            echo "ERROR: Tag not recognized $tag"
+            exit
+            ;;
+    esac
+}
+
 if [ $# -lt 3 ]; then
     echo "Usage: ./build.sh dev-build <path> <platform> [<menuconfig-param>]"
     echo "  ./build.sh release <tag|branch> <platform> [<menuconfig-param>]"
@@ -17,12 +38,29 @@ if [ "$1" == "dev-build" ];then
     shift
 
     cb_path=$1
+    pushd $cb_path
+    check_if_legacy $(git describe --tags --abbrev=0)
+    legacy=$?
+    popd
 
     # remove coreboot path
     shift
-    docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
-        -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
-        /home/coreboot/scripts/pce-fw-builder.sh $*
+
+
+    if [ "$legacy" == 1 ]; then
+        echo "Dev-build coreboot legacy"
+        docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [ "$legacy" == 0 ]; then
+        echo "Dev-build coreboot mainline"
+        docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    else
+        echo "ERROR: Exit"
+        exit
+    fi
 
 elif [ "$1" == "release" ]; then
     if [ -d release ]; then
@@ -37,8 +75,12 @@ elif [ "$1" == "release" ]; then
     git submodule update --init --checkout
     git remote add pcengines https://github.com/pcengines/coreboot.git
     git fetch pcengines
-    git checkout $1
+    git checkout -f $1
     git submodule update --init --checkout
+
+    check_if_legacy $(git describe --tags --abbrev=0 ${1})
+    legacy=$?
+
     cd ../..
 
     VERSION=$1
@@ -46,10 +88,21 @@ elif [ "$1" == "release" ]; then
 
     # remove tag|branch from options
     shift
-    docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
-        -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
-        /home/coreboot/scripts/pce-fw-builder.sh $*
 
+    if [ "$legacy" == 1 ]; then
+        echo "Release $1 build coreboot legacy"
+        docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [ "$legacy" == 0 ]; then
+        echo "Release $1 build coreboot mainline"
+        docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            /home/coreboot/scripts/pce-fw-builder.sh $*
+    else
+        echo "ERROR: Exit"
+        exit
+    fi
 
     cd release
     cp coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
@@ -65,8 +118,11 @@ elif [ "$1" == "release-CI" ]; then
     git submodule update --init --checkout
     git remote add pcengines https://github.com/pcengines/coreboot.git
     git fetch pcengines
-    git checkout $1
+    git checkout -f $1
     git submodule update --init --checkout
+    check_if_legacy $(git describe --tags --abbrev=0 ${1})
+    legacy=$?
+
     cd /home/coreboot/pce-fw-builder
 
     VERSION=$1
@@ -75,7 +131,7 @@ elif [ "$1" == "release-CI" ]; then
     # remove tag|branch from options
     shift
 
-    scripts/pce-fw-builder.sh $*
+    scripts/pce-fw-builder.sh $legacy $*
 
     pwd
     ls -al /home/coreboot/coreboot/build/
