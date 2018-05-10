@@ -6,6 +6,7 @@ RUN  \
 	apt-get -qq update && \
 	apt-get -qqy install \
 	iasl \
+	curl \
 	git \
 	python \
 	m4 \
