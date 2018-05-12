@@ -21,19 +21,28 @@ check_if_legacy() {
     esac
 }
 
-if [ $# -lt 3 ]; then
-    echo "Usage: ./build.sh dev-build <path> <platform> [<menuconfig-param>]"
-    echo "  ./build.sh release <tag|branch> <platform> [<menuconfig-param>]"
-    echo "  dev-build - build source from <path>"
-    echo "  release - pull source and build according to <tag>"
-    echo "  <path> - full path to coreboot source"
-    echo "  <tag|branch> - tag or branch published on github.com/pcengines/coreboot"
-    echo "  <platform> - apu2, apu3, apu4 or apu5"
-    echo "  <menuconfig-param> - menuconfig interface, give 'help' for more information"
+usage () {
+    echo "usage: $0 <command> [<args>]"
+    echo
+    echo "Commands:"
+    echo "    dev-build    build PC Engines firmware from given path"
+    echo "    release      build PC Engines firmware from branch/tag/commit of"
+    echo "                 upstream or PC Engines fork of coreboot"
+    echo "    release-CI   release command prepared to be run in Gitlab CI"
+    echo
+    echo "dev-build: $0 dev-build <path> <platform> [<menuconfig_param>]"
+    echo "    <path>                full path to coreboot source"
+    echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
+    echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
+    echo
+    echo "release: $0 release <ref> <platform>"
+    echo "    <ref>                 valid reference branch, tag or commit"
+    echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
+    echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
     exit
-fi
+}
 
-if [ "$1" == "dev-build" ];then
+dev_build() {
     # remove dev-build from options
     shift
 
@@ -62,7 +71,9 @@ if [ "$1" == "dev-build" ];then
         exit
     fi
 
-elif [ "$1" == "release" ]; then
+}
+
+release() {
     if [ -d release ]; then
         sudo rm -rf release
     fi
@@ -108,9 +119,9 @@ elif [ "$1" == "release" ]; then
     cp coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
     md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
     tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
+}
 
-elif [ "$1" == "release-CI" ]; then
-
+release_ci() {
     # remove release-CI from options
     shift
     git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
@@ -148,5 +159,23 @@ elif [ "$1" == "release-CI" ]; then
     ls -al
     cp "${OUT_FILE_NAME}.tar.gz" /home/coreboot
     ls -al /home/coreboot
-fi
+}
 
+
+case "$1" in
+    help)
+        usage
+        ;;
+    dev-build)
+        dev_build $*
+        ;;
+    release)
+        release $*
+        ;;
+    release-CI)
+        release_ci $*
+        ;;
+    *)
+        usage
+        ;;
+esac
