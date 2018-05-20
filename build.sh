@@ -109,7 +109,7 @@ release() {
         echo "Release $1 build coreboot mainline"
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
-            /home/coreboot/scripts/pce-fw-builder.sh $*
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     else
         echo "ERROR: Exit"
         exit
