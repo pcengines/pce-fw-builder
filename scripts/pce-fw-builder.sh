@@ -8,7 +8,7 @@ shift
 if [ $# == 1 ];then
     echo "Build coreboot for $1"
     make distclean
-    if [ $legacy == 1]; then
+    if [ $legacy == 1 ]; then
         cp configs/pcengines_$1.config .config
     else 
         cp configs/config.pcengines_$1 .config && make olddefconfig
