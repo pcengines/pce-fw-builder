@@ -31,7 +31,7 @@ usage () {
     echo "    release-CI   release command prepared to be run in Gitlab CI"
     echo
     echo "dev-build: $0 dev-build <path> <platform> [<menuconfig_param>]"
-    echo "    <path>                full path to coreboot source"
+    echo "    <path>                path to coreboot source"
     echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
     echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
     echo
@@ -42,13 +42,36 @@ usage () {
     exit
 }
 
+check_version () {
+    product_version=${1//v/}
+    semver=( ${product_version//./ }  )
+    major="${semver[0]:-0}"
+    minor="${semver[1]:-0}"
+    patch="${semver[2]:-0}"
+
+    if [ $major -ge 4 ]; then
+        if [ $minor -eq 0 -a $patch -le 16 ]; then
+            echo "ERROR: version unsupported ($product_version <= 4.0.17)"
+            exit 1
+        elif [ $minor -eq 6 -a $patch -le 8 ]; then
+            echo "ERROR: version unsupported ($product_version <= 4.6.9)"
+            exit 1
+        fi
+    else
+        echo "ERROR: version unsupported ($product_version <= 4.0.17 || $product_version <= 4.6.9)"
+        exit 1
+    fi
+}
+
 dev_build() {
     # remove dev-build from options
     shift
 
-    cb_path=$1
+    cb_path="`realpath $1`"
     pushd $cb_path
-    check_if_legacy $(git describe --tags --abbrev=0)
+    tag=$(git describe --tags --abbrev=0)
+    check_version $tag
+    check_if_legacy $tag
     legacy=$?
     popd
 
@@ -80,6 +103,7 @@ release() {
 
     # remove release from options
     shift
+    check_version $1
     mkdir release
     git clone https://review.coreboot.org/coreboot.git release/coreboot
     cd release/coreboot
@@ -124,6 +148,7 @@ release() {
 release_ci() {
     # remove release-CI from options
     shift
+    check_version $1
     git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
     cd /home/coreboot/coreboot
     git submodule update --init --checkout
