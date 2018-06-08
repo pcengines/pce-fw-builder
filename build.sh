@@ -31,7 +31,7 @@ usage () {
     echo "    release-CI   release command prepared to be run in Gitlab CI"
     echo
     echo "dev-build: $0 dev-build <path> <platform> [<menuconfig_param>]"
-    echo "    <path>                full path to coreboot source"
+    echo "    <path>                path to coreboot source"
     echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
     echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
     echo
@@ -46,7 +46,7 @@ dev_build() {
     # remove dev-build from options
     shift
 
-    cb_path=$1
+    cb_path="`realpath $1`"
     pushd $cb_path
     check_if_legacy $(git describe --tags --abbrev=0)
     legacy=$?
