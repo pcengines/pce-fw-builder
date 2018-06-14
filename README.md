@@ -9,9 +9,18 @@ wherever it is possible. Unfortunately legacy builds `coreboot-4.0.x` require
 toolchain from pre-coreboot-sdk era that's why we created
 `pce-fw-builder-legacy`.
 
-Keep in mind that this tool works only for coreboot releases not older than
-v4.6.10 and v4.0.17. For older releases use the procedure described in
-[release_manifests](https://github.com/pcengines/release_manifests).
+Limitations
+------------
+
+- Only the newest firmware releases are supported with pce-fw-builder. Versions
+  v4.6.9 or newer and v4.0.17 or newer are compatible. Older releases are only
+  compatible with legacy release manifests.
+
+- It is advised to use tagged versions since they should not cause any build
+  troubles.
+
+- To customize the image, build from tagged version first, then use `dev-build`,
+  see `Usage` and `Development use case` below
 
 Usage
 -----
