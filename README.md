@@ -9,6 +9,10 @@ wherever it is possible. Unfortunately legacy builds `coreboot-4.0.x` require
 toolchain from pre-coreboot-sdk era that's why we created
 `pce-fw-builder-legacy`.
 
+Keep in mind that this tool works only for coreboot releases not older than
+v4.6.9 and v4.0.17. For older releases use the procedure described in
+[release_manifests](https://github.com/pcengines/release_manifests).
+
 Usage
 -----
 
@@ -16,8 +20,13 @@ Initial run may take some time. Below procedures assume that Docker is
 correctly installed and current user is in `docker` group. Script automatically
 detect with which codebase it deals with and choose toolchain accordingly.
 
+If you don't want to use default containers take a look at [this paragraph](#Building-Docker-image).
+
 ```
-$ git clone https://github.com/pcengines/pce-fw-builder.git
+$ git clone https://github.com/pcengines/pce-fw-builder.git -b v1.2.0
+```
+Remember to use a recent tag in the command above.
+```
 $ cd pce-fw-builder
 $ ./build.sh
 usage: ./build.sh <command> [<args>]
@@ -61,14 +70,17 @@ This will pull everything needed and build release. Then you can play with code 
 Building Docker image
 ---------------------
 
+If for any reasons you want better control over Docker containers please use the
+following commands after editing files as you wish:
+
 ## Mainline
 
 ```
-docker build -t 3mdeb/pce-fw-builder -f Dockerfile.ml .
+docker build -t pcengines/pce-fw-builder -f Dockerfile.ml .
 ```
 
 ## Legacy
 
 ```
-docker build -t 3mdeb/pce-fw-builder-legacy -f Dockerfile.legacy .
+docker build -t pcengines/pce-fw-builder-legacy -f Dockerfile.legacy .
 ```
