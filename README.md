@@ -26,7 +26,7 @@ detect with which codebase it deals with and choose toolchain accordingly.
 If you don't want to use default containers take a look at [this paragraph](#building-docker-image).
 
 ```
-$ git clone https://github.com/pcengines/pce-fw-builder.git -b v1.2.0
+$ git clone https://github.com/pcengines/pce-fw-builder.git -b <most_recent_tag>
 ```
 Remember to use a recent tag in the command above.
 ```
@@ -72,9 +72,6 @@ This will pull everything needed and build release. Then you can play with code 
 
 Building Docker image
 ---------------------
-
-If for any reasons you want better control over Docker containers please use the
-following commands after editing files as you wish:
 
 ## Mainline
 
