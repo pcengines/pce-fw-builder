@@ -10,11 +10,8 @@ toolchain from pre-coreboot-sdk era that's why we created
 `pce-fw-builder-legacy`.
 
 Keep in mind that this tool works only for coreboot releases not older than
-v4.6.9 and v4.0.17. For older releases use the procedure described in
+v4.6.10 and v4.0.17. For older releases use the procedure described in
 [release_manifests](https://github.com/pcengines/release_manifests).
-Also, due to a typo in configuration file, when building v4.6.9 you will be asked
-if you want to `Include CPU microcode in CBFS` - just press Enter and the build
-process will continue.
 
 Usage
 -----
