@@ -51,14 +51,14 @@ check_version () {
 
     if [ $major -ge 4 ]; then
         if [ $minor -eq 0 -a $patch -le 16 ]; then
-            echo "ERROR: version unsupported ($product_version <= 4.0.17)"
+            echo "ERROR: version unsupported ($product_version < 4.0.17)"
             exit 1
-        elif [ $minor -eq 6 -a $patch -le 8 ]; then
-            echo "ERROR: version unsupported ($product_version <= 4.6.9)"
+        elif [ $minor -eq 6 -a $patch -le 9 ]; then
+            echo "ERROR: version unsupported ($product_version < 4.6.10)"
             exit 1
         fi
     else
-        echo "ERROR: version unsupported ($product_version <= 4.0.17 || $product_version <= 4.6.9)"
+        echo "ERROR: version unsupported ($product_version < 4.0.17 || $product_version < 4.6.10)"
         exit 1
     fi
 }
