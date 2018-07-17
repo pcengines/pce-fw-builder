@@ -20,8 +20,6 @@ Initial run may take some time. Below procedures assume that Docker is
 correctly installed and current user is in `docker` group. Script automatically
 detect with which codebase it deals with and choose toolchain accordingly.
 
-If you don't want to use default containers take a look at [this paragraph](#building-docker-image).
-
 ```
 $ git clone https://github.com/pcengines/pce-fw-builder.git -b <most_recent_tag>
 ```
