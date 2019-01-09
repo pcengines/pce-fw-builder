@@ -141,8 +141,7 @@ release() {
 
     cd release
     cp coreboot/build/coreboot.rom "${OUT_FILE_NAME}"
-    md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
-    tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
+    sha256sum "${OUT_FILE_NAME}"
 }
 
 release_ci() {
@@ -176,14 +175,8 @@ release_ci() {
         mkdir -p /home/coreboot/release
     fi
 
-    cp /home/coreboot/coreboot/build/coreboot.rom /home/coreboot/release/"${OUT_FILE_NAME}"
-    cd /home/coreboot/release
-    md5sum "${OUT_FILE_NAME}" > "${OUT_FILE_NAME}.md5"
-    tar czf "${OUT_FILE_NAME}.tar.gz" "${OUT_FILE_NAME}" "${OUT_FILE_NAME}.md5"
-    pwd
-    ls -al
-    cp "${OUT_FILE_NAME}.tar.gz" /home/coreboot
-    ls -al /home/coreboot
+    cp /home/coreboot/coreboot/build/coreboot.rom /home/coreboot/"${OUT_FILE_NAME}"
+    sha256sum /home/coreboot/"${OUT_FILE_NAME}"
 }
 
 
