@@ -63,6 +63,24 @@ check_version () {
     fi
 }
 
+check_sdk_version () {
+    product_version=${1//v/}
+    semver=( ${product_version//./ }  )
+    major="${semver[0]:-0}"
+    minor="${semver[1]:-0}"
+    patch="${semver[2]:-0}"
+
+    if [ $major -ge 4 ]; then
+        if [ $minor -ge 9 ]; then
+            # for v4.9.x.x use newer SDK
+            return 1.52.1
+        elif [ $minor -lt 9 ]; then
+            # for versions < 4.9.x.x use older SDK
+            return 1.50.1
+        fi
+
+}
+
 dev_build() {
     # remove dev-build from options
     shift
@@ -85,9 +103,11 @@ dev_build() {
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
+        check_sdk_version $tag
+        sdk_ver=$?
         echo "Dev-build coreboot mainline"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
-            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     else
         echo "ERROR: Exit"
@@ -130,9 +150,11 @@ release() {
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
+        check_sdk_version $tag
+        sdk_ver=$?
         echo "Release $1 build coreboot mainline"
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
-            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     else
         echo "ERROR: Exit"
