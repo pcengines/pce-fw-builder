@@ -63,6 +63,28 @@ check_version () {
     fi
 }
 
+check_sdk_version () {
+    product_version=${1//v/}
+    semver=( ${product_version//./ }  )
+    major="${semver[0]:-0}"
+    minor="${semver[1]:-0}"
+    patch="${semver[2]:-0}"
+
+    if [ $major -ge 4 ]; then
+        if [ $minor -ge 9 ]; then
+            # for v4.9.x.x use newer SDK
+            sdk_ver=1.52.1
+            return 0
+        elif [ $minor -lt 9 ]; then
+            # for versions < 4.9.x.x use older SDK
+            sdk_ver=1.50.1
+            return 0
+        fi
+    fi
+    # should not happen
+    sdk_ver=latest
+}
+
 dev_build() {
     # remove dev-build from options
     shift
@@ -85,9 +107,11 @@ dev_build() {
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
+        sdk_ver=latest
+        check_sdk_version $tag
         echo "Dev-build coreboot mainline"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
-            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     else
         echo "ERROR: Exit"
@@ -112,8 +136,9 @@ release() {
     git fetch pcengines
     git checkout -f $1
     git submodule update --init --checkout
+    tag=$(git describe --tags --abbrev=0 ${1})
 
-    check_if_legacy $(git describe --tags --abbrev=0 ${1})
+    check_if_legacy $tag
     legacy=$?
 
     cd ../..
@@ -130,9 +155,11 @@ release() {
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
+        sdk_ver=latest
+        check_sdk_version $tag
         echo "Release $1 build coreboot mainline"
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
-            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:latest \
+            -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     else
         echo "ERROR: Exit"
