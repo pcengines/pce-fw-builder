@@ -1,6 +1,8 @@
 pce-fw-builder
 ==============
 
+[![Build Status](https://travis-ci.com/pcengines/pce-fw-builder.svg?branch=master)](https://travis-ci.com/pcengines/pce-fw-builder)
+
 This project aims to provide infrastructure for reliable building firmware for
 PC Engines platforms. It replace legacy approach from
 [release_manifests](https://github.com/pcengines/release_manifests) and utilize
@@ -77,14 +79,40 @@ This will pull everything needed and build release. Then you can play with code 
 Building Docker image
 ---------------------
 
-## Mainline
+### Mainline
 
 ```
 docker build -t pcengines/pce-fw-builder -f Dockerfile.ml .
 ```
 
-## Legacy
+### Legacy
 
 ```
 docker build -t pcengines/pce-fw-builder-legacy -f Dockerfile.legacy .
 ```
+
+Versioning
+----------
+
+PC Engines firmware builder repository will be versioned and tagged according
+to coreboot's SDK versioning, i.e. pce-fw-builder adapts the major and minor
+versions. PC Engines firmware versions will be added as a patch version, for
+example:
+
+coreboot/coreboot-sdk:1.52 release ===> pcengines/pce-fw-builder:1.52.1 release
+
+### Version update
+
+Using 3mdeb [docker-release-manager](https://github.com/3mdeb/docker-release-manager):
+
+```
+curl -s https://raw.githubusercontent.com/3mdeb/docker-release-manager/master/release-manager.sh | bash /dev/stdin bump_patch
+```
+
+If the coreboot-sdk container minor version icnreases by 2, manually set
+`VERSION` file to correct value.
+
+### Legacy builder
+
+pce-fw-builder-legacy has frozen toolchain, thus the versioning should be.
+Container will not have new tags.

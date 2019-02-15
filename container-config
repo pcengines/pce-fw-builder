@@ -1,0 +1,2 @@
+DOCKER_USER_NAME="pcengines"
+DOCKER_IMAGE_NAME="pce-fw-builder"
