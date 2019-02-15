@@ -1,6 +1,8 @@
 pce-fw-builder
 ==============
 
+[![Build Status](https://travis-ci.com/pcengines/pce-fw-builder.svg?branch=master)](https://travis-ci.com/pcengines/pce-fw-builder)
+
 This project aims to provide infrastructure for reliable building firmware for
 PC Engines platforms. It replace legacy approach from
 [release_manifests](https://github.com/pcengines/release_manifests) and utilize
