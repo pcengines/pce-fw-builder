@@ -134,6 +134,8 @@ release() {
     git submodule update --init --checkout
     git remote add pcengines https://github.com/pcengines/coreboot.git
     git fetch pcengines
+    # fetch tags additionally, sometimes git fetch does not find all revisions
+    git fetch pcengines -t
     git checkout -f $1
     git submodule update --init --checkout
     tag=$(git describe --tags --abbrev=0 ${1})
@@ -180,6 +182,8 @@ release_ci() {
     git submodule update --init --checkout
     git remote add pcengines https://github.com/pcengines/coreboot.git
     git fetch pcengines
+    # fetch tags additionally, sometimes git fetch does not find all revisions
+    git fetch pcengines -t
     git checkout -f $1
     git submodule update --init --checkout
     check_if_legacy $(git describe --tags --abbrev=0 ${1})
