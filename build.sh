@@ -2,10 +2,16 @@
 
 check_if_legacy() {
     case "$1" in
+        4.[1-9][0-9]*)
+            return 0
+            ;;
         4.[0-3]*)
             return 1
             ;;
         4.[4-9]*)
+            return 0
+            ;;
+        v4.[1-9][0-9]*)
             return 0
             ;;
         v4.[0-3]*)
