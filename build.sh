@@ -76,7 +76,7 @@ check_sdk_version () {
         fi
     fi
     # should not happen
-    sdk_ver=1.52.3
+    sdk_ver=latest
 }
 
 dev_build() {
