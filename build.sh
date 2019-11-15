@@ -2,22 +2,10 @@
 
 check_if_legacy() {
     case "$1" in
-        4.[1-9][0-9]*)
-            return 0
-            ;;
-        4.[0-3]*)
+        v4\.0\.*)
             return 1
             ;;
-        4.[4-9]*)
-            return 0
-            ;;
-        v4.[1-9][0-9]*)
-            return 0
-            ;;
-        v4.[0-3]*)
-            return 1
-            ;;
-        v4.[4-9]*)
+        v4\.[1-9]*)
             return 0
             ;;
         *)
@@ -88,7 +76,7 @@ check_sdk_version () {
         fi
     fi
     # should not happen
-    sdk_ver=latest
+    sdk_ver=1.52.3
 }
 
 dev_build() {
