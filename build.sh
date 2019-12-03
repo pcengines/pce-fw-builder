@@ -45,6 +45,11 @@ usage () {
     echo "    <ref>                 valid reference branch, tag or commit"
     echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
     echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
+    echo
+    echo "Used SDK version can be overridden by environment variable SDK_VER e.g."
+    echo "SDK_VER=psec2019 ./build.sh dev-build apu2"
+    echo "will use pcengines/pcw-fw-builder:psec2019 container"
+    echo
     exit
 }
 
@@ -75,6 +80,11 @@ check_sdk_version () {
     major="${semver[0]:-0}"
     minor="${semver[1]:-0}"
     patch="${semver[2]:-0}"
+
+    if [ ! -z "${SDK_VER}" ]; then
+        sdk_ver=$SDK_VER
+        return 0
+    fi
 
     if [ $major -ge 4 ]; then
         if [ $minor -ge 9 ]; then
