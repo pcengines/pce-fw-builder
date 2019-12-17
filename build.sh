@@ -8,6 +8,21 @@ check_if_legacy() {
         v4\.[1-9]*)
             return 0
             ;;
+        4\.[1-9][0-9]*)
+            return 0
+            ;;
+        4\.[2-7]*)
+            return 1
+            ;;
+        4\.0*)
+            return 1
+            ;;
+        4\.1[^0-9]*)
+            return 1
+            ;;
+        4\.[8-9]*)
+            return 0
+            ;;
         *)
             echo "ERROR: Tag not recognized $tag"
             exit
