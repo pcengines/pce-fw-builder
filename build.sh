@@ -2,26 +2,47 @@
 
 check_if_legacy() {
     case "$1" in
-        4.[1-9][0-9]*)
-            return 0
-            ;;
-        4.[0-3]*)
+        4\.0\.1[7-9]*)
             return 1
             ;;
-        4.[4-9]*)
-            return 0
-            ;;
-        v4.[1-9][0-9]*)
-            return 0
-            ;;
-        v4.[0-3]*)
+        4\.0\.[2-9][0-9]*)
             return 1
             ;;
-        v4.[4-9]*)
+        4\.0\.1[0-6]*)
+            return 2
+            ;;
+        4\.0\.[1-9][^0-9]*)
+            return 2
+            ;;
+        4\.0\.[1-9])
+            return 2
+            ;;
+        4\.[1-9][0-9]*)
+            return 0
+            ;;
+        4\.[1-5]\.*)
+            return 2
+            ;;
+        4\.6\.[2-8]*)
+            return 2
+            ;;
+        4\.6\.[0-1])
+            return 2
+            ;;
+        4\.6\.9)
+            return 0
+            ;;
+        4\.6\.1[0-9])
+            return 0
+            ;;
+        4\.1[^0-9]*)
+            return 1
+            ;;
+        4\.[7-9]*)
             return 0
             ;;
         *)
-            echo "ERROR: Tag not recognized $tag"
+            return 2
             exit
             ;;
     esac
@@ -109,7 +130,9 @@ dev_build() {
     pushd $cb_path
     tag=$(git describe --tags --abbrev=0)
     check_version $tag
-    check_if_legacy $tag
+    tag2="${tag##*/v}";
+    tag3="${tag2%^*}";
+    check_if_legacy $tag3
     legacy=$?
     popd
 
@@ -129,6 +152,8 @@ dev_build() {
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [[ $legacy == 2 ]]; then
+      echo "$tag3 is UNSUPPORTED"
     else
         echo "ERROR: Exit"
         exit
@@ -179,6 +204,8 @@ release() {
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [[ $legacy == 2 ]]; then
+        echo "$tag3 is UNSUPPORTED"
     else
         echo "ERROR: Exit"
         exit
