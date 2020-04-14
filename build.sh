@@ -41,12 +41,52 @@ check_if_legacy() {
         4\.[7-9]*)
             return 0
             ;;
+        v4\.0\.1[7-9]*)
+            return 1
+            ;;
+        v4\.0\.[2-9][0-9]*)
+            return 1
+            ;;
+        v4\.0\.1[0-6]*)
+            return 2
+            ;;
+        v4\.0\.[1-9][^0-9]*)
+            return 2
+            ;;
+        v4\.0\.[1-9])
+            return 2
+            ;;
+        v4\.[1-9][0-9]*)
+            return 0
+            ;;
+        v4\.[1-5]\.*)
+            return 2
+            ;;
+        v4\.6\.[2-8]*)
+            return 2
+            ;;
+        v4\.6\.[0-1])
+            return 2
+            ;;
+        v4\.6\.9)
+            return 0
+            ;;
+        v4\.6\.1[0-9])
+            return 0
+            ;;
+        v4\.1[^0-9]*)
+            return 1
+            ;;
+        v4\.[7-9]*)
+            return 0
+            ;;
         *)
             return 2
             exit
             ;;
     esac
 }
+
 
 usage () {
     echo "usage: $0 <command> [<args>]"
