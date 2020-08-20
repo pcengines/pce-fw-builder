@@ -178,8 +178,8 @@ release() {
     git checkout -f $1
     git submodule update --init --checkout
     tag=$(git describe --tags --abbrev=0 ${1})
-    check_version $tag
-    #check_if_legacy $tag
+    check_version $(git describe --tags --abbrev=0 ${1})
+    check_if_legacy $(git describe --tags --abbrev=0 ${1})
     legacy=$?
 
     cd ../..
@@ -227,6 +227,7 @@ release_ci() {
     git checkout -f $1
     git submodule update --init --checkout
     check_version $(git describe --tags --abbrev=0 ${1})
+    check_if_legacy $(git describe --tags --abbrev=0 ${1})
     legacy=$?
 
     cd /home/coreboot/pce-fw-builder
