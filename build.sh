@@ -165,10 +165,8 @@ release() {
     if [ -d release ]; then
         sudo rm -rf release
     fi
-
     # remove release from options
     shift
-    check_version $1
     mkdir release
     git clone https://review.coreboot.org/coreboot.git release/coreboot
     cd release/coreboot
@@ -180,7 +178,7 @@ release() {
     git checkout -f $1
     git submodule update --init --checkout
     tag=$(git describe --tags --abbrev=0 ${1})
-
+    check_version $tag
     check_if_legacy $tag
     legacy=$?
 
@@ -219,7 +217,6 @@ release() {
 release_ci() {
     # remove release-CI from options
     shift
-    check_version $1
     git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
     cd /home/coreboot/coreboot
     git submodule update --init --checkout
@@ -229,8 +226,11 @@ release_ci() {
     git fetch pcengines -t
     git checkout -f $1
     git submodule update --init --checkout
-    check_if_legacy $(git describe --tags --abbrev=0 ${1})
+    tag=$(git describe --tags --abbrev=0 ${1})
+    check_version $tag
+    check_if_legacy $tag
     legacy=$?
+
 
     cd /home/coreboot/pce-fw-builder
 
