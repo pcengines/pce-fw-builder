@@ -1,5 +1,31 @@
 #!/bin/bash
 
+usage () {
+    echo "usage: $0 <command> [<args>]"
+    echo
+    echo "Commands:"
+    echo "    dev-build    build PC Engines firmware from given path"
+    echo "    release      build PC Engines firmware from branch/tag/commit of"
+    echo "                 upstream or PC Engines fork of coreboot"
+    echo "    release-CI   release command prepared to be run in Gitlab CI"
+    echo
+    echo "dev-build: $0 dev-build <path> <platform> [<menuconfig_param>]"
+    echo "    <path>                path to coreboot source"
+    echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
+    echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
+    echo
+    echo "release: $0 release <ref> <platform>"
+    echo "    <ref>                 valid reference branch, tag or commit"
+    echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
+    echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
+    echo
+    echo "Used SDK version can be overridden by environment variable SDK_VER e.g."
+    echo "SDK_VER=psec2019 ./build.sh dev-build apu2"
+    echo "will use pcengines/pcw-fw-builder:psec2019 container"
+    echo
+    exit
+}
+
 check_if_legacy() {
     case "$1" in
         4\.0\.1[7-9]*)
@@ -46,32 +72,6 @@ check_if_legacy() {
             exit
             ;;
     esac
-}
-
-usage () {
-    echo "usage: $0 <command> [<args>]"
-    echo
-    echo "Commands:"
-    echo "    dev-build    build PC Engines firmware from given path"
-    echo "    release      build PC Engines firmware from branch/tag/commit of"
-    echo "                 upstream or PC Engines fork of coreboot"
-    echo "    release-CI   release command prepared to be run in Gitlab CI"
-    echo
-    echo "dev-build: $0 dev-build <path> <platform> [<menuconfig_param>]"
-    echo "    <path>                path to coreboot source"
-    echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
-    echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
-    echo
-    echo "release: $0 release <ref> <platform>"
-    echo "    <ref>                 valid reference branch, tag or commit"
-    echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
-    echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
-    echo
-    echo "Used SDK version can be overridden by environment variable SDK_VER e.g."
-    echo "SDK_VER=psec2019 ./build.sh dev-build apu2"
-    echo "will use pcengines/pcw-fw-builder:psec2019 container"
-    echo
-    exit
 }
 
 check_version () {
@@ -125,21 +125,16 @@ check_sdk_version () {
 dev_build() {
     # remove dev-build from options
     shift
-
     cb_path="`realpath $1`"
     pushd $cb_path
     tag=$(git describe --tags --abbrev=0)
     check_version $tag
-    tag2="${tag##*/v}";
-    tag3="${tag2%^*}";
-    check_if_legacy $tag3
+    if [[ ${tag:0:1} == "v" ]] ; then tag=${tag:1}; fi
+    check_if_legacy $tag
     legacy=$?
     popd
-
     # remove coreboot path
     shift
-
-
     if [ "$legacy" == 1 ]; then
         echo "Dev-build coreboot legacy"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
@@ -179,17 +174,14 @@ release() {
     git submodule update --init --checkout
     tag=$(git describe --tags --abbrev=0 ${1})
     check_version $tag
+    if [[ ${tag:0:1} == "v" ]] ; then tag=${tag:1}; fi
     check_if_legacy $tag
     legacy=$?
-
     cd ../..
-
     VERSION=$1
     OUT_FILE_NAME="$2_${VERSION}.rom"
-
     # remove tag|branch from options
     shift
-
     if [ "$legacy" == 1 ]; then
         echo "Release $1 build coreboot legacy"
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
@@ -228,6 +220,7 @@ release_ci() {
     git submodule update --init --checkout
     tag=$(git describe --tags --abbrev=0 ${1})
     check_version $tag
+    if [[ ${tag:0:1} == "v" ]] ; then tag=${tag:1}; fi
     check_if_legacy $tag
     legacy=$?
 
