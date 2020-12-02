@@ -135,9 +135,13 @@ dev_build() {
     popd
     # remove coreboot path
     shift
+    # Save uid and gid from executing user, file permissions fix for users with uid!=1000
+    USER_ID=`id -u`
+    GROUP_ID=`id -g`
     if [ "$legacy" == 1 ]; then
         echo "Dev-build coreboot legacy"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+            -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
@@ -145,6 +149,7 @@ dev_build() {
         check_sdk_version $tag
         echo "Dev-build coreboot mainline"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+            -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [[ $legacy == 2 ]]; then
@@ -182,9 +187,13 @@ release() {
     OUT_FILE_NAME="$2_${VERSION}.rom"
     # remove tag|branch from options
     shift
+    # Save uid and gid from executing user, file permissions fix for users with uid!=1000
+    USER_ID=`id -u`
+    GROUP_ID=`id -g`
     if [ "$legacy" == 1 ]; then
         echo "Release $1 build coreboot legacy"
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+            -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
@@ -192,6 +201,7 @@ release() {
         check_sdk_version $tag
         echo "Release $1 build coreboot mainline"
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+            -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [[ $legacy == 2 ]]; then
