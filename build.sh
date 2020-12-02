@@ -1,32 +1,5 @@
 #!/bin/bash
 
-check_if_legacy() {
-    case "$1" in
-        4.[1-9][0-9]*)
-            return 0
-            ;;
-        4.[0-3]*)
-            return 1
-            ;;
-        4.[4-9]*)
-            return 0
-            ;;
-        v4.[1-9][0-9]*)
-            return 0
-            ;;
-        v4.[0-3]*)
-            return 1
-            ;;
-        v4.[4-9]*)
-            return 0
-            ;;
-        *)
-            echo "ERROR: Tag not recognized $tag"
-            exit
-            ;;
-    esac
-}
-
 usage () {
     echo "usage: $0 <command> [<args>]"
     echo
@@ -45,7 +18,60 @@ usage () {
     echo "    <ref>                 valid reference branch, tag or commit"
     echo "    <platform>            apu1, apu2, apu3, apu4 or apu5"
     echo "    <menuconfig_param>    menuconfig interface, give 'help' for more information"
+    echo
+    echo "Used SDK version can be overridden by environment variable SDK_VER e.g."
+    echo "SDK_VER=psec2019 ./build.sh dev-build apu2"
+    echo "will use pcengines/pcw-fw-builder:psec2019 container"
+    echo
     exit
+}
+
+check_if_legacy() {
+    case "$1" in
+        4\.0\.1[7-9]*)
+            return 1
+            ;;
+        4\.0\.[2-9][0-9]*)
+            return 1
+            ;;
+        4\.0\.1[0-6]*)
+            return 2
+            ;;
+        4\.0\.[1-9][^0-9]*)
+            return 2
+            ;;
+        4\.0\.[1-9])
+            return 2
+            ;;
+        4\.[1-9][0-9]*)
+            return 0
+            ;;
+        4\.[1-5]\.*)
+            return 2
+            ;;
+        4\.6\.[2-8]*)
+            return 2
+            ;;
+        4\.6\.[0-1])
+            return 2
+            ;;
+        4\.6\.9)
+            return 0
+            ;;
+        4\.6\.1[0-9])
+            return 0
+            ;;
+        4\.1[^0-9]*)
+            return 1
+            ;;
+        4\.[7-9]*)
+            return 0
+            ;;
+        *)
+            return 2
+            exit
+            ;;
+    esac
 }
 
 check_version () {
@@ -76,6 +102,11 @@ check_sdk_version () {
     minor="${semver[1]:-0}"
     patch="${semver[2]:-0}"
 
+    if [ ! -z "${SDK_VER}" ]; then
+        sdk_ver=$SDK_VER
+        return 0
+    fi
+
     if [ $major -ge 4 ]; then
         if [ $minor -ge 9 ]; then
             # for v4.9.x.x use newer SDK
@@ -94,19 +125,17 @@ check_sdk_version () {
 dev_build() {
     # remove dev-build from options
     shift
-
     cb_path="`realpath $1`"
     pushd $cb_path
     tag=$(git describe --tags --abbrev=0)
     check_version $tag
+    if [[ ${tag:0:1} == "v" ]] ; then tag=${tag:1}; fi
     check_if_legacy $tag
     legacy=$?
     popd
-
     # remove coreboot path
     shift
-
-
+    # Save uid and gid from executing user, file permissions fix for users with uid!=1000
     USER_ID=`id -u`
     GROUP_ID=`id -g`
     if [ "$legacy" == 1 ]; then
@@ -123,6 +152,8 @@ dev_build() {
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [[ $legacy == 2 ]]; then
+      echo "$tag3 is UNSUPPORTED"
     else
         echo "ERROR: Exit"
         exit
@@ -134,10 +165,8 @@ release() {
     if [ -d release ]; then
         sudo rm -rf release
     fi
-
     # remove release from options
     shift
-    check_version $1
     mkdir release
     git clone https://review.coreboot.org/coreboot.git release/coreboot
     cd release/coreboot
@@ -149,18 +178,16 @@ release() {
     git checkout -f $1
     git submodule update --init --checkout
     tag=$(git describe --tags --abbrev=0 ${1})
-
+    check_version $tag
+    if [[ ${tag:0:1} == "v" ]] ; then tag=${tag:1}; fi
     check_if_legacy $tag
     legacy=$?
-
     cd ../..
-
     VERSION=$1
     OUT_FILE_NAME="$2_${VERSION}.rom"
-
     # remove tag|branch from options
     shift
-
+    # Save uid and gid from executing user, file permissions fix for users with uid!=1000
     USER_ID=`id -u`
     GROUP_ID=`id -g`
     if [ "$legacy" == 1 ]; then
@@ -177,6 +204,8 @@ release() {
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+    elif [[ $legacy == 2 ]]; then
+        echo "$tag3 is UNSUPPORTED"
     else
         echo "ERROR: Exit"
         exit
@@ -190,7 +219,6 @@ release() {
 release_ci() {
     # remove release-CI from options
     shift
-    check_version $1
     git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
     cd /home/coreboot/coreboot
     git submodule update --init --checkout
@@ -200,8 +228,12 @@ release_ci() {
     git fetch pcengines -t
     git checkout -f $1
     git submodule update --init --checkout
-    check_if_legacy $(git describe --tags --abbrev=0 ${1})
+    tag=$(git describe --tags --abbrev=0 ${1})
+    check_version $tag
+    if [[ ${tag:0:1} == "v" ]] ; then tag=${tag:1}; fi
+    check_if_legacy $tag
     legacy=$?
+
 
     cd /home/coreboot/pce-fw-builder
 
