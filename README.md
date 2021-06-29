@@ -174,7 +174,7 @@ Using 3mdeb [docker-release-manager](https://github.com/3mdeb/docker-release-man
 curl -s https://raw.githubusercontent.com/3mdeb/docker-release-manager/master/release-manager.sh | bash /dev/stdin bump_patch
 ```
 
-If the coreboot-sdk container minor version icnreases by 2, manually set
+If the coreboot-sdk container minor version increases by 2, manually set
 `VERSION` file to correct value.
 
 ### Legacy builder
