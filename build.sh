@@ -49,7 +49,6 @@ check_if_legacy() {
     esac
 }
 
-
 usage () {
     echo "usage: $0 <command> [<args>]"
     echo
