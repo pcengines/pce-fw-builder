@@ -220,8 +220,10 @@ release() {
 release_ci() {
     # remove release-CI from options
     shift
-    git clone https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
-    cd /home/coreboot/coreboot
+    # increase the buffer to avoid unexpected remote hangs
+    git config --global http.postBuffer 1048576000
+    git clone --depth=1 https://review.coreboot.org/coreboot.git /home/coreboot/coreboot
+    cd /home/coreboot/coreboot || exit 1
     git submodule update --init --checkout
     git remote add pcengines https://github.com/pcengines/coreboot.git
     git fetch pcengines
