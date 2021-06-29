@@ -27,7 +27,8 @@ usage () {
 }
 
 check_if_legacy() {
-    case "$1" in
+    product_version=${1//v/}
+    case "$product_version" in
         4\.0\.1[7-9]*)
             return 1
             ;;
