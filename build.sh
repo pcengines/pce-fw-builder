@@ -102,6 +102,9 @@ check_sdk_version () {
     major="${semver[0]:-0}"
     minor="${semver[1]:-0}"
     patch="${semver[2]:-0}"
+    release="${semver[3]:-0}"
+
+    sslverify=true
 
     if [ ! -z "${SDK_VER}" ]; then
         sdk_ver=$SDK_VER
@@ -109,18 +112,24 @@ check_sdk_version () {
     fi
 
     if [ $major -ge 4 ]; then
-        if [ $minor -ge 9 ]; then
-            # for v4.9.x.x use newer SDK
-            sdk_ver=1.52.1
+	    if [ $minor -ge 15 ] || ( [ $minor -ge 14 ] && [ $release -ge 5 ] ); then
+            # for >= 4.14.0.5 use newer SDK with updated ca-certificates
+            sdk_ver=TBD
+            return 0
+        elif [ $minor -ge 9 ]; then
+            # for >= v4.9.x.x use older SDK with SSL disabled
+            sdk_ver=1.52.6
+            sslverify=false
             return 0
         elif [ $minor -lt 9 ]; then
-            # for versions < 4.9.x.x use older SDK
+            # for versions < 4.9.x.x use legacy SDK
             sdk_ver=1.50.1
             return 0
         fi
     fi
     # should not happen
     sdk_ver=latest
+    sslverify=true
 }
 
 dev_build() {
@@ -147,12 +156,13 @@ dev_build() {
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
         sdk_ver=latest
+        sslverify=true
         check_sdk_version $tag
         echo "Dev-build coreboot mainline"
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
-            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $sslverify $*
     elif [[ $legacy == 2 ]]; then
       echo "$tag3 is UNSUPPORTED"
     else
@@ -199,12 +209,13 @@ release() {
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
     elif [ "$legacy" == 0 ]; then
         sdk_ver=latest
+        sslverify=true
         check_sdk_version $tag
         echo "Release $1 build coreboot mainline"
         docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
-            /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
+            /home/coreboot/scripts/pce-fw-builder.sh $legacy $sslverify $*
     elif [[ $legacy == 2 ]]; then
         echo "$tag3 is UNSUPPORTED"
     else
