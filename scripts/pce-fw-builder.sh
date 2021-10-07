@@ -3,11 +3,13 @@
 cd /home/coreboot/coreboot
 
 legacy=$1
-shift
+sslverify=$2
+shift 2
 
 if [ $# == 1 ];then
     echo "Build coreboot for $1"
     make distclean
+    git config --global http.sslVerify $sslverify
     if [ -f configs/config.pcengines_$1 ]; then
         cp configs/config.pcengines_$1 .config && make olddefconfig
     elif [ -f configs/pcengines_$1.config ]; then
