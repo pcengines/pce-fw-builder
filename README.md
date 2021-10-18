@@ -181,3 +181,10 @@ If the coreboot-sdk container minor version increases by 2, manually set
 
 pce-fw-builder-legacy has frozen toolchain, thus the versioning should be.
 Container will not have new tags.
+
+
+Issues
+------
+
+If you want to create an issue, [here](https://github.com/pcengines/apu2-documentation/issues)
+is the right place for that.
