@@ -114,7 +114,7 @@ check_sdk_version () {
     if [ $major -ge 4 ]; then
 	    if [ $minor -ge 15 ] || ( [ $minor -ge 14 ] && [ $release -ge 5 ] ); then
             # for >= 4.14.0.5 use newer SDK with updated ca-certificates
-            sdk_ver=2.0
+            sdk_ver=2.0.0
             return 0
         elif [ $minor -ge 9 ]; then
             # for >= v4.9.x.x use older SDK with SSL disabled
