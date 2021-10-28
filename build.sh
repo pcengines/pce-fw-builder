@@ -247,7 +247,8 @@ release_ci() {
     if [[ ${tag:0:1} == "v" ]] ; then tag=${tag:1}; fi
     check_if_legacy $tag
     legacy=$?
-
+    # always verify ssl certificates in CI
+    sslverify=true 
 
     cd /home/coreboot/pce-fw-builder
 
@@ -257,7 +258,7 @@ release_ci() {
     # remove tag|branch from options
     shift
 
-    scripts/pce-fw-builder.sh $legacy $*
+    scripts/pce-fw-builder.sh $legacy $sslverify $*
 
     pwd
     ls -al /home/coreboot/coreboot/build/
