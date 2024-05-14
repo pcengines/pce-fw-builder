@@ -159,8 +159,12 @@ dev_build() {
         sslverify=true
         check_sdk_version $tag
         echo "Dev-build coreboot mainline"
+        if [ ! -d "$PWD/ccache" ]; then
+          mkdir $PWD/ccache
+        fi
         docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
+            -v $PWD/ccache:/home/coreboot/.ccache \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $sslverify $*
     elif [[ $legacy == 2 ]]; then
