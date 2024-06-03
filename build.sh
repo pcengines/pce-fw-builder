@@ -116,7 +116,7 @@ check_sdk_version () {
 
     if [ $major -ge 24 ]; then
 	      if [ "$minor" == "05" ]; then
-            sdk_ver=2024-05-20_b4949d3de5
+            sdk_ver=2024-03-30_cccada28f7
             return 0
         fi
     elif [ $major -ge 4 ]; then
