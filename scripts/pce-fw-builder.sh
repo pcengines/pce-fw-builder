@@ -19,12 +19,12 @@ if [ $# == 1 ];then
     else
         echo "ERROR: no configuration exist for $*"
     fi
-    make
+    make BUILD_TIMELESS=1
 elif [ $# == 2 ]; then
     echo "Build custom coreboot for $1"
     # remove platform
     shift
-    make $*
+    make BUILD_TIMELESS=1 $*
 else
     echo "ERROR: invalid arguments $*"
 fi
