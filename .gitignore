@@ -1,2 +1,5 @@
 release
 coreboot
+*.rom
+*.sha256sum
+ccache
