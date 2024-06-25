@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH="/usr/lib/ccache:$PATH"
+ccache -s
 cd /home/coreboot/coreboot
 
 legacy=$1
