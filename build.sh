@@ -68,6 +68,9 @@ check_if_legacy() {
         4\.[7-9]*)
             return 0
             ;;
+        24\.[0-9][0-9]*)
+            return 0
+            ;;
         *)
             return 2
             exit
@@ -111,8 +114,13 @@ check_sdk_version () {
         return 0
     fi
 
-    if [ $major -ge 4 ]; then
-	    if [ $minor -ge 15 ] || ( [ $minor -ge 14 ] && [ $release -ge 5 ] ); then
+    if [ $major -ge 24 ]; then
+	      if [ "$minor" == "05" ]; then
+            sdk_ver=2024-03-30_cccada28f7
+            return 0
+        fi
+    elif [ $major -ge 4 ]; then
+	      if [ $minor -ge 15 ] || ( [ $minor -ge 14 ] && [ $release -ge 5 ] ); then
             # for >= 4.14.0.5 use newer SDK with updated ca-certificates
             sdk_ver=2.0.0
             return 0

@@ -1,4 +1,4 @@
-FROM coreboot/coreboot-sdk:2021-04-06_7014f8258e
+FROM coreboot/coreboot-sdk:2024-03-30_cccada28f7
 MAINTAINER Piotr Król <piotr.krol@3mdeb.com>
 USER root
 COPY ./scripts/entrypoint.sh /entrypoint.sh
