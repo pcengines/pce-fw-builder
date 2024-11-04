@@ -19,7 +19,7 @@ fi
 # Loop through each platform and build
 for platform in "${platforms[@]}"; do
 	echo "Starting build for $platform..."
-	./build.sh dev-build "$DASHARO_PATH" "seabios_$platform"
+	./build.sh dev-build "$DASHARO_PATH" "$platform"
 
 	# Capture the exit code of the build process
 	status_code=$?
@@ -29,8 +29,8 @@ for platform in "${platforms[@]}"; do
 		echo "Build failed for $platform with status code $status_code."
 		exit $status_code
 	fi
-	mv $DASHARO_PATH/build/coreboot.rom seabios_${platform}.rom
-	sha256sum seabios_${platform}.rom >seabios_${platform}.sha256sum
+	mv $DASHARO_PATH/build/coreboot.rom ${platform}.rom
+	sha256sum ${platform}.rom >${platform}.sha256sum
 done
 
 echo "All builds completed successfully."

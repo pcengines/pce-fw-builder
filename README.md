@@ -77,7 +77,7 @@ Please note in future version of container may differ since it relies on
 For example:
 
 ```bash
-./build_apus.sh ../coreboot apu2
+./build_apus.sh ../coreboot seabios_apu2
 ```
 
 If no parameters will be provided binaries for all supported models would be built.
